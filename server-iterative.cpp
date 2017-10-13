@@ -251,8 +251,7 @@ int main( int argc, char* argv[] )
 		
 		
 		if (FD_ISSET(listenfd, &rset)) { // accept a single incoming connection
-			accept_client(listenfd);
-			FD_CLR(listenfd, &rset); 		
+			accept_client(listenfd);			
 		} 
 		
 		for (size_t i = 0; i < connections.size(); ++i) {
@@ -275,15 +274,14 @@ int main( int argc, char* argv[] )
 					processFurther = process_client_recv( connData );
 					printf("\t...process client recv return\n");					
 				}
-				connData.state = eConnStateSending;
-				FD_CLR(connData.sock, &rset);
+				connData.state = eConnStateSending;				
 			}
 			
 			if (wfdisset) {
 				while( wfdisset && processFurther && connData.state == eConnStateSending ) {
 				printf("\t...process client send call\n");
 				processFurther = process_client_send( connData );
-				printf("\t...process client send return\n");
+				printf("\t..	.process client send return\n");
 				
 			}				
 			
@@ -294,8 +292,7 @@ int main( int argc, char* argv[] )
 				// done - close connection
 				printf("Socket %i closed and removed\n", connData.sock);
 				close( connData.sock ); 
-				connections[i].sock = -1;
-				FD_CLR(connData.sock, &wset);
+				connections[i].sock = -1;				
 			}
 		}
 		printf("\n");
