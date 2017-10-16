@@ -175,11 +175,12 @@ static void accept_client(int listenfd){
 
 	connections.push_back(connData);
 	
-	//#if NONBLOCKING
+	#if NONBLOCKING
 	// enable non-blocking sends and receives on this socket
-	//if( !set_socket_nonblocking( clientfd ) )
-	//	continue;
-	//#endif
+	if( !set_socket_nonblocking( clientfd )) {
+		//continue;
+	}
+	#endif
 }
 
 //--    main()              ///{{{1///////////////////////////////////////////
@@ -218,8 +219,9 @@ int main( int argc, char* argv[] )
 		FD_ZERO(&wset);
 		FD_SET(listenfd, &rset);
 		int maxfd = listenfd; 
-		int numR = 0, numW = 0;
-		for (size_t i = 0; i < connections.size(); ++i) {
+		int numR = 0; 
+		int numW = 0;
+		for (size_t i = 0; i < connections.size(); i++) {
 			switch (connections[i].sock){
 				case eConnStateReceiving:
 					FD_SET(connections[i].sock, &rset);										
@@ -232,10 +234,11 @@ int main( int argc, char* argv[] )
 					numW++;
 					break;
 				default:
-					printf("Socket %i is stateless\n", connections[0].sock);
+					printf("Socket %i is stateless\n", connections[i].sock);
 					FD_SET(connections[i].sock, &rset);
 					FD_SET(connections[i].sock, &wset);	
-					numR++; numW++;
+					numR++; 
+					numW++;
 			}
 			maxfd = std::max( connections[i].sock, maxfd );		
 		}
@@ -425,7 +428,7 @@ static int setup_server_socket( short port )
 		return -1;
 	}
 
-	char actualBuff[128];
+	char actualBuff[256];
 	printf( "Socket is bound to %s %d\n", 
 		inet_ntop( AF_INET, &actualAddr.sin_addr, actualBuff, sizeof(actualBuff) ),
 		ntohs(actualAddr.sin_port)
